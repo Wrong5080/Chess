@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHESS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Chess.css">
+</head>
+<body>
+
+<audio id="aud-bg"      src="background.mp3" loop preload="none"></audio>
+<audio id="aud-move"    src="move.mp3"        preload="none"></audio>
+<audio id="aud-capture" src="capture.mp3"     preload="none"></audio>
+<audio id="aud-victory" src="victory.mp3"     preload="none"></audio>
+<audio id="aud-defeat"  src="defeat.mp3"      preload="none"></audio>
+
+<div id="dragGhost"></div>
+
+<div id="menuScreen">
+  <div class="gbg" style="top:4%;left:3%;opacity:.06"><svg width="260" height="260" viewBox="0 0 100 100" style="animation:gspin 24s linear infinite"><path d="M50,7L54,18L64,12L66,23L77,23L75,34L86,38L80,48L89,55L80,62L86,72L75,76L77,87L66,87L64,98L54,92L50,103L46,92L36,98L34,87L23,87L25,76L14,72L20,62L11,55L20,48L14,38L25,34L23,23L34,23L36,12L46,18Z" fill="none" stroke="#c89a28" stroke-width="2"/><circle cx="50" cy="50" r="20" fill="none" stroke="#c89a28" stroke-width="2"/><circle cx="50" cy="50" r="7" fill="#c89a28"/></svg></div>
+  <div class="gbg" style="bottom:3%;right:4%;opacity:.06"><svg width="190" height="190" viewBox="0 0 100 100" style="animation:gspin 19s linear infinite reverse"><path d="M50,9L54,19L63,14L65,24L74,25L72,35L81,39L76,48L83,54L76,60L81,69L72,73L74,83L65,84L63,94L54,89L50,99L46,89L37,94L35,84L26,83L28,73L19,69L24,60L17,54L24,48L19,39L28,35L26,25L35,24L37,14L46,19Z" fill="none" stroke="#c89a28" stroke-width="2"/><circle cx="50" cy="50" r="17" fill="none" stroke="#c89a28" stroke-width="2"/></svg></div>
+  <div class="gbg" style="top:8%;right:6%;opacity:.035"><svg width="340" height="340" viewBox="0 0 100 100" style="animation:gspin 38s linear infinite"><path d="M50,5L54,16L65,10L67,22L79,22L77,34L88,38L82,49L92,56L82,63L88,74L77,78L79,90L67,90L65,102L54,96L50,107L46,96L35,102L33,90L21,90L23,78L12,74L18,63L8,56L18,49L12,38L23,34L21,22L33,22L35,10L46,16Z" fill="none" stroke="#c89a28" stroke-width="1.5"/></svg></div>
+  <div class="menu-card">
+    <div class="mb-bl"></div><div class="mb-br"></div>
+    <div class="menu-ttl">CHESS</div>
+    <div class="menu-sub">Master Ultimate · v7.0</div>
+    <div class="menu-hr"></div>
+    <button class="mbtn" onclick="go1P()"><span class="mpip"></span>1 Player<span class="mtag">VS COMPUTER</span></button>
+    <button class="mbtn" onclick="go2P()"><span class="mpip"></span>2 Players<span class="mtag">LOCAL MATCH</span></button>
+    <div class="mfooter">
+      <span class="mfl">Sound &amp; Music</span>
+      <div class="tog on" id="mTog" onclick="toggleSnd(event)"><div class="togk"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="pick-overlay" id="diffScreen">
+  <div class="pick-card">
+    <div class="pick-ttl">Difficulty</div>
+    <button class="dbtn easy" onclick="pickTime('easy')"><span>◈</span>Novice<span class="dbadge">DEPTH 1</span></button>
+    <button class="dbtn med"  onclick="pickTime('medium')"><span>◈</span>Standard<span class="dbadge">DEPTH 3</span></button>
+    <button class="dbtn hard" onclick="pickTime('hard')"><span>◈</span>Master<span class="dbadge">DEPTH 5</span></button>
+    <button class="dback" onclick="hideDiff()">← Back</button>
+  </div>
+</div>
+
+<div class="pick-overlay" id="timeScreen">
+  <div class="pick-card">
+    <div class="pick-ttl">Time Control</div>
+    <button class="dbtn time" onclick="startWithTime(300)"><span>◈</span>Blitz<span class="dbadge">5 MIN</span></button>
+    <button class="dbtn time" onclick="startWithTime(600)"><span>◈</span>Rapid<span class="dbadge">10 MIN</span></button>
+    <button class="dbtn time" onclick="startWithTime(900)"><span>◈</span>Classic<span class="dbadge">15 MIN</span></button>
+    <button class="dbtn time" onclick="startWithTime(0)"><span>◈</span>Free<span class="dbadge">NO LIMIT</span></button>
+    <button class="dback" onclick="hideTime()">← Back</button>
+  </div>
+</div>
+
+<div id="gameScreen">
+  <div class="panel">
+    <div class="pbox"><div class="plbl">Mode</div><div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--brass)" id="modeVal">—</div></div>
+
+    <div class="pbox" id="clockBox">
+      <div class="plbl">Chess Clock</div>
+      <div id="clockBrow">
+        <div class="clock-player-lbl">Black</div>
+        <div class="clock-display" id="clockBdisp">--:--</div>
+      </div>
+      <div class="clock-sep"></div>
+      <div id="clockWrow">
+        <div class="clock-player-lbl">White</div>
+        <div class="clock-display" id="clockWdisp">--:--</div>
+      </div>
+    </div>
+
+    <div class="pbox">
+      <div class="plbl">Turn</div>
+      <div class="turn-row"><div class="tlamp" id="tlamp"></div><div class="tname" id="tname">White</div></div>
+    </div>
+    <div class="pbox"><div class="plbl">Status</div><div class="stext" id="stext">Game in progress</div><div class="opening-name" id="openingName"></div></div>
+    <div class="pbox">
+      <div class="plbl">Score</div>
+      <div class="score-bar">
+        <div class="sc-s"><div class="sc-n" id="scW">0</div><div class="sc-l">White</div></div>
+        <div class="sc-d"></div>
+        <div class="sc-s"><div class="sc-n" id="scB">0</div><div class="sc-l">Black</div></div>
+      </div>
+    </div>
+    <div class="pbox" id="thinkBox" style="display:none"><div class="plbl">Engine</div>
+      <div class="think-row"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div><span style="margin-left:6px;letter-spacing:2px">THINKING</span></div>
+    </div>
+    <div class="pbox"><div class="plbl">White Captures</div><div class="cap-row" id="capW"></div><div class="cap-adv" id="advW"></div></div>
+    <div class="pbox"><div class="plbl">Black Captures</div><div class="cap-row" id="capB"></div><div class="cap-adv" id="advB"></div></div>
+  </div>
+
+  <div style="position:relative;z-index:1;display:flex;gap:8px;align-items:flex-start">
+    <div class="bframe" id="bframe">
+      <div class="cgear tl"><svg viewBox="0 0 100 100"><path d="M50,10L54,18L62,14L64,23L72,23L70,32L78,35L73,43L80,48L73,53L78,61L70,64L72,73L64,73L62,82L54,78L50,86L46,78L38,82L36,73L28,73L30,64L22,61L27,53L20,48L27,43L22,35L30,32L28,23L36,23L38,14L46,18Z" fill="none" stroke="#c89a28" stroke-width="3.5"/><circle cx="50" cy="50" r="16" fill="none" stroke="#c89a28" stroke-width="3.5"/><circle cx="50" cy="50" r="5" fill="#c89a28"/></svg></div>
+      <div class="cgear tr"><svg viewBox="0 0 100 100"><path d="M50,10L54,18L62,14L64,23L72,23L70,32L78,35L73,43L80,48L73,53L78,61L70,64L72,73L64,73L62,82L54,78L50,86L46,78L38,82L36,73L28,73L30,64L22,61L27,53L20,48L27,43L22,35L30,32L28,23L36,23L38,14L46,18Z" fill="none" stroke="#c89a28" stroke-width="3.5"/><circle cx="50" cy="50" r="16" fill="none" stroke="#c89a28" stroke-width="3.5"/><circle cx="50" cy="50" r="5" fill="#c89a28"/></svg></div>
+      <div class="cgear bl"><svg viewBox="0 0 100 100"><path d="M50,10L54,18L62,14L64,23L72,23L70,32L78,35L73,43L80,48L73,53L78,61L70,64L72,73L64,73L62,82L54,78L50,86L46,78L38,82L36,73L28,73L30,64L22,61L27,53L20,48L27,43L22,35L30,32L28,23L36,23L38,14L46,18Z" fill="none" stroke="#c89a28" stroke-width="3.5"/><circle cx="50" cy="50" r="16" fill="none" stroke="#c89a28" stroke-width="3.5"/><circle cx="50" cy="50" r="5" fill="#c89a28"/></svg></div>
+      <div class="cgear br"><svg viewBox="0 0 100 100"><path d="M50,10L54,18L62,14L64,23L72,23L70,32L78,35L73,43L80,48L73,53L78,61L70,64L72,73L64,73L62,82L54,78L50,86L46,78L38,82L36,73L28,73L30,64L22,61L27,53L20,48L27,43L22,35L30,32L28,23L36,23L38,14L46,18Z" fill="none" stroke="#c89a28" stroke-width="3.5"/><circle cx="50" cy="50" r="16" fill="none" stroke="#c89a28" stroke-width="3.5"/><circle cx="50" cy="50" r="5" fill="#c89a28"/></svg></div>
+      <div class="rivets h top"><div class="rivet"></div><div class="rivet"></div><div class="rivet"></div><div class="rivet"></div><div class="rivet"></div></div>
+      <div class="rivets h bot"><div class="rivet"></div><div class="rivet"></div><div class="rivet"></div><div class="rivet"></div><div class="rivet"></div></div>
+      <div class="bwrap">
+        <div class="cranks" id="cranks"></div>
+        <div style="position:relative">
+          <div class="board theme-wood" id="board">
+            <svg id="arrowLayer" width="512" height="512" viewBox="0 0 512 512"><defs><marker id="arrowhead" markerWidth="6" markerHeight="4" refX="3" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="rgba(200,60,60,.8)"/></marker><marker id="arrowheadB" markerWidth="6" markerHeight="4" refX="3" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="rgba(60,120,220,.8)"/></marker></defs></svg>
+          </div>
+          <div class="cfiles" id="cfiles"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eval-outer" style="padding-top:26px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--dim);letter-spacing:1px;text-align:center;margin-bottom:4px">B</div>
+      <div class="eval-track" id="evalTrack">
+        <div class="eval-white" id="evalFill" style="height:50%"></div>
+        <div class="eval-center"></div>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--dim);letter-spacing:1px;text-align:center;margin-top:4px">W</div>
+      <div class="eval-val" id="evalVal">0.0</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="pbox" id="diffPanel" style="display:none"><div class="plbl">Difficulty</div><div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--brass)" id="diffVal">—</div></div>
+
+    <div class="pbox">
+      <div class="plbl">Music</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="music-viz" id="musicViz"><div class="vbar"></div><div class="vbar"></div><div class="vbar"></div><div class="vbar"></div><div class="vbar"></div></div>
+        <div class="tog on" id="mscTog" onclick="toggleMusic(event)"><div class="togk"></div></div>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--dim);margin-top:5px" id="trackName">♩ AMBIENT CLOCKWORK</div>
+    </div>
+
+    <div class="pbox">
+      <div class="plbl">Board Theme</div>
+      <div class="theme-row">
+        <div class="tpill active" id="th-wood"   style="background:linear-gradient(135deg,#e8d49c 50%,#7a4822 50%)" onclick="setTheme('wood')"   title="Wood"></div>
+        <div class="tpill"        id="th-blue"   style="background:linear-gradient(135deg,#b8cce4 50%,#2c4a6e 50%)" onclick="setTheme('blue')"   title="Ocean"></div>
+        <div class="tpill"        id="th-green"  style="background:linear-gradient(135deg,#e0ddb4 50%,#4a7a4a 50%)" onclick="setTheme('green')"  title="Felt"></div>
+        <div class="tpill"        id="th-marble" style="background:linear-gradient(135deg,#d8d0c8 50%,#3a3038 50%)" onclick="setTheme('marble')" title="Marble"></div>
+      </div>
+    </div>
+
+    <div class="pbox">
+      <div class="plbl">Controls</div>
+      <div class="ctrl-grid">
+        <button class="cbtn" onclick="undoMove()" title="Undo last move (Z)">↩ Undo</button>
+        <button class="cbtn" onclick="flipBoard()" title="Flip board (F)">⇅ Flip</button>
+        <button class="cbtn" onclick="resetGame()">↺ New</button>
+        <button class="cbtn" onclick="gotoMenu()">⌂ Menu</button>
+      </div>
+      <button class="cbtn danger" onclick="resignGame()" style="margin-top:5px">⚑ Resign</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--dim)">SFX</span>
+        <div class="tog on" id="gTog" onclick="toggleSnd(event)"><div class="togk"></div></div>
+      </div>
+    </div>
+
+    <div class="pbox" style="flex:1;min-height:0"><div class="plbl">Move History</div><div class="mlist" id="mlist"></div></div>
+
+    <div class="pbox"><div class="plbl" style="margin-bottom:7px">Legend</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;line-height:2.1;color:var(--dim);letter-spacing:.5px">● Green = Selected<br>● Dot = Valid Move<br>● Ring = Capture<br>● Yellow = Last Move<br>● Red = Check<br>● Right-click = Annotate</div>
+    </div>
+  </div>
+</div>
+
+<div class="result-overlay" id="victoryScreen">
+  <div class="victory-scene"><div class="victory-bg"></div><div class="victory-rays"></div>
+    <div class="victory-content">
+      <div class="victory-label">GAME OVER</div>
+      <div class="victory-title">VICTORY</div>
+      <div class="victory-sub" id="victoryWinner">White Wins!</div>
+      <div class="result-stats" id="victoryStats"></div>
+      <div class="vs-row">
+        <div><div class="vs-num" id="vScW">0</div><div class="vs-lbl">White</div></div>
+        <div class="vs-div">:</div>
+        <div><div class="vs-num" id="vScB">0</div><div class="vs-lbl">Black</div></div>
+      </div>
+      <div class="result-btns"><button class="rbtn prime" onclick="resetGame()">Play Again</button><button class="rbtn" onclick="gotoMenu()">Main Menu</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="result-overlay" id="defeatScreen">
+  <div class="defeat-scene"><div class="defeat-bg"></div>
+    <div class="defeat-content">
+      <div class="defeat-label">GAME OVER</div>
+      <div class="defeat-title">DEFEAT</div>
+      <div class="defeat-sub" id="defeatWinner">Black Wins</div>
+      <div class="defeat-card" id="defeatCard">— CHECKMATE —</div>
+      <div class="result-stats" id="defeatStats"></div>
+      <div class="vs-row" style="border-color:rgba(60,80,140,.2)">
+        <div><div class="vs-num blue" id="dScW">0</div><div class="vs-lbl">White</div></div>
+        <div class="vs-div">:</div>
+        <div><div class="vs-num blue" id="dScB">0</div><div class="vs-lbl">Black</div></div>
+      </div>
+      <div class="result-btns"><button class="rbtn prime" onclick="resetGame()">Try Again</button><button class="rbtn" onclick="gotoMenu()">Main Menu</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="result-overlay" id="drawScreen">
+  <div class="draw-scene"><div class="draw-bg"></div>
+    <div class="draw-content">
+      <div class="defeat-label">GAME OVER</div>
+      <div class="draw-title">DRAW</div>
+      <div class="draw-sub" id="drawReason">Stalemate</div>
+      <div class="result-stats" id="drawStats"></div>
+      <div class="vs-row" style="border-color:rgba(100,100,140,.2)">
+        <div><div class="vs-num grey" id="drScW">0</div><div class="vs-lbl">White</div></div>
+        <div class="vs-div">:</div>
+        <div><div class="vs-num grey" id="drScB">0</div><div class="vs-lbl">Black</div></div>
+      </div>
+      <div class="result-btns"><button class="rbtn prime" onclick="resetGame()">Play Again</button><button class="rbtn" onclick="gotoMenu()">Main Menu</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay off" id="promoModal">
+  <div class="promo-box">
+    <div class="promo-ttl">Pawn Promotion</div>
+    <div class="promo-sub">Choose your piece</div>
+    <div class="promo-row" id="promoRow"></div>
+  </div>
+</div>
+   <script src="Chess.js"></script>
+</body>
+</html>
